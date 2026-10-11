@@ -110,6 +110,11 @@ def demote(text):
     return "\n".join(lines)
 
 
+def thinking(text):
+    """Claude's thinking, folded away so the chat stays easy to read."""
+    return f"<details><summary>💭 Thinking</summary>\n\n{demote(text)}\n\n</details>"
+
+
 def block_text(content):
     if isinstance(content, str):
         return content
@@ -199,7 +204,9 @@ def render(entries):
             for b in blocks:
                 if not isinstance(b, dict):
                     continue
-                if b.get("type") == "text" and b.get("text", "").strip():
+                if b.get("type") == "thinking" and b.get("thinking", "").strip():
+                    parts.append(thinking(b["thinking"].strip()))
+                elif b.get("type") == "text" and b.get("text", "").strip():
                     parts.append(demote(b["text"].strip()))
                 elif b.get("type") == "tool_use":
                     tool_names[b.get("id")] = b.get("name", "tool")
@@ -436,7 +443,8 @@ Each `laneN` folder is tied to its own Claude Code account.
 | Add another lane | `bash setup-lanes.sh lane4` |
 
 Chats are saved automatically as Markdown after every reply, into the
-`chats` folder of the lane whose account you used. Open them in VS Code
+`chats` folder of the lane whose account you used. Claude's thinking is
+included as a folded "💭 Thinking" section whenever Claude Code recorded it. Open them in VS Code
 and press `Ctrl+Shift+V` for a nicely formatted preview.
 
 Logins live in `~/AI-Home/.accounts/` - don't share or upload that folder.
